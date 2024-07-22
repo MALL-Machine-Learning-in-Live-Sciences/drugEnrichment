@@ -28,5 +28,15 @@ treatment_info <- read.csv(
   header = T
 )
 
+drug_pkn <- 
+  treatment_info %>%
+  filter(!is.na(moa)) %>%
+  tidyr::separate_rows(moa, sep = ",\\s*") %>%
+  select(moa, name) %>%
+  distinct(moa, name)
+
+View(drug_pkn)
+
 saveRDS(treatment_info, file = "data/treatment_info.rds")
 saveRDS(dose_response_f, file = "data/drug_response.rds")
+saveRDS(drug_pkn, file = "data/drug_pkn.rds")
