@@ -15,11 +15,11 @@ counts <- data.table::fread(
 ) %>%
   tibble::column_to_rownames("V1")
 
-colnames(counts) <- sapply(strsplit(colnames(counts), "..", fixed = T), "[", 1)
+colnames(counts) <- sapply(strsplit(colnames(counts), " ", fixed = T), "[", 1)
 counts <- counts[match(metadata$ModelID, rownames(counts)), ]
 
-saveRDS(counts, file = "data/ccle_brca_counts.rds")
-saveRDS(metadata, file = "data/ccle_brca_clinical.rds")
+saveRDS(counts, file = "data/ccle_counts.rds")
+saveRDS(metadata, file = "data/ccle_clinical.rds")
 
 
 

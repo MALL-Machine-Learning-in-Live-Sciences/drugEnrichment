@@ -1,6 +1,7 @@
 # folders
 data/
 extdata/
+tmp/
 
 # files
 extdata.rar
