@@ -11,10 +11,7 @@ ccle_counts <- readRDS("data/ccle_counts.rds")
 # PRISM Repurposing 19Q4
 prism <- data.table::fread(
   "extdata/PRISM_19Q4/secondary-screen-dose-response-curve-parameters.csv",
-  header = TRUE)
-
-prism <-
-  prism %>%
+  header = TRUE) %>%
   filter(
     depmap_id %in% ccle_meta$ModelID
   ) %>% 
@@ -28,12 +25,12 @@ prism <-
   t() %>% as.data.frame()
 
 # Match datasets
-cell_lines <- intersect(rownames(ccle), rownames(prism))
+cell_lines <- intersect(rownames(ccle_counts), rownames(prism))
 ccle_counts <- ccle_counts[cell_lines, ]
 prism <- prism[cell_lines, ]
 
 # Define drug PKN
-treatment_info <- read.csv(
+drug_pkn <- read.csv(
   "extdata/PRISM_19Q4/secondary-screen-replicate-treatment-info.csv",
   header = T
 ) %>%
