@@ -21,49 +21,32 @@ if not os.path.exists(folder_path):
     os.makedirs(folder_path)
 
 #Cormatrix folder path
-cor_matrix_folder_path = folder_path+"cor_matrix/"
-if not os.path.exists(cor_matrix_folder_path):
-    os.makedirs(cor_matrix_folder_path)
+# cor_matrix_folder_path = folder_path+"cor_matrix/"
+# if not os.path.exists(cor_matrix_folder_path):
+#     os.makedirs(cor_matrix_folder_path)
 
 # 2.1 Defining functions
 # ----------------------------------------------------------------------------------------------------------------------------------------------------
-def compute_correlation(drug_col, stats, df_counts, df_drugs):
-    correlations = []
-    df_suboutputs = df_drugs[drug_col].dropna()
-    for gene in df_counts.columns:
-        if len(df_suboutputs.unique())>1:
-            df_subgene = df_counts[gene].dropna()
-            shared_cells = df_suboutputs.index.intersection(df_subgene.index)       
-            correlation, _ = stats.pearsonr(df_suboutputs[shared_cells].sort_index().values,
-                                    df_subgene[shared_cells].sort_index().values)
-            correlations.append((gene, correlation))
-        else:
-            correlations.append((gene, None))
 
-    return drug_col, correlations
-    
-
-def correlation_drugs(df_drugs, df_counts):  
+# Function to do the correlation analysis
+def correlation_drugs_2(df_drugs, df_counts):  
     '''
     Inputs: drug matrix (cell-response) and expresión matrix (cell-expression)
     Outputs: correlation matrix: gene-drug
     '''
-    from joblib import Parallel, delayed
-    import pandas as pd
-    from scipy import stats  
-
-
     correlation_matrix = pd.DataFrame(index=df_drugs.columns, columns=df_counts.columns)
 
-    # Ejecutar las correlaciones en paralelo
-    results = Parallel(n_jobs=-1)(delayed(compute_correlation)(drug_col, stats, df_counts, df_drugs) for drug_col in df_drugs.columns)
-
-    # Almacenar los resultados en el DataFrame de correlación
-    for drug_col, correlations in results:
-        for gene, correlation in correlations:
+    for drug_col in df_drugs.columns:
+        df_suboutputs = df_drugs[drug_col]
+        df_suboutputs = df_suboutputs.dropna()
+        for gene in df_counts.columns:
+            df_subgene = df_counts[gene]
+            df_subgene = df_subgene.dropna()
+            shared_cells = df_suboutputs.index.intersection(df_subgene.index)       
+            correlation, _ = stats.pearsonr(df_suboutputs[shared_cells].sort_index().values,
+                                    df_subgene[shared_cells].sort_index().values)
             correlation_matrix.at[drug_col, gene] = correlation
-
-    # Visualiza el DataFrame de correlación
+            
     return correlation_matrix
 
 # Funcion to do the gesea enrichment
@@ -79,16 +62,22 @@ def gsa_drug_enrichment(matrix, net, shared_element, net_group, n_min=5):
     Outputs: gsea matrix and p-values
     '''
     
-    
-    matrix = matrix.dropna(0)
+    matrix = matrix.fillna(0)
     shared_elements = set(matrix.index).intersection(set(net[shared_element]))
-
-    adata = ad.AnnData(matrix.loc[shared_elements, :].T)
-
-    result  = dc.run_gsea(mat=adata,net=net[net[shared_element].isin(shared_elements)],source=net_group,target=shared_element,min_n=5,use_raw=False)
+    filtered_correlation_matrix = matrix.loc[shared_elements, :]
+    filtered_df_net = net[net[shared_element].isin(shared_elements)]
+    
+    adata = ad.AnnData(filtered_correlation_matrix.T)
+    
+    results = dc.run_gsea(mat=adata,net=filtered_df_net,source=net_group,target=shared_element,min_n=n_min,use_raw=False)
     result_df_gsea = adata.obsm['gsea_estimate'] 
     p_value_gsea = adata.obsm['gsea_pvals']
     
+    #Filter option 
+    # mask = p_value_gsea <= 0.05
+
+    # filtered_result_df_gsea = result_df_gsea[mask]
+    # filtered_result_df_gsea = filtered_result_df_gsea.dropna(how='all').dropna(axis=1, how='all')
     
     return result_df_gsea, p_value_gsea
 
@@ -129,8 +118,8 @@ df_tf = adata.obsm['ulm_estimate']
 cor_matrix = correlation_drugs(df_counts=df_tf,df_drugs=df_outputs)
 gsea_result, pvalues = gsa_drug_enrichment(matrix=cor_matrix,net=drug_net, shared_element='broad_id',net_group='moa')
 
-final_path = cor_matrix_folder_path+'cormatrix.csv'
-cor_matrix.to_csv(final_path)
+#final_path = cor_matrix_folder_path+'cormatrix.csv'
+#cor_matrix.to_csv(final_path)
 
 df_gsea_long = gsea_result.reset_index().melt(id_vars='index', var_name='MoA', value_name='GSEA value')
 df_gsea_long.rename(columns={'index': 'TF'}, inplace=True)
@@ -141,54 +130,58 @@ df_resultado['Cells_count'] = len(df_tf)
 df_resultado['Split by'] = None
 df_resultado['Tumor type'] = 'All cell lines'
 
+
+
 # 2.3 GSEA splicing by organ:
 # ----------------------------------------------------------------------------------------------------------------------------------------------------
 
-for organ in df_metadata['OncotreeLineage'].unique():
-    cell_lines = df_metadata.index[df_metadata['OncotreeLineage']==organ].to_list()
-    df_sub_tf = df_tf[df_tf.index.isin(cell_lines)]
-    df_sub_outputs = df_outputs[df_outputs.index.isin(cell_lines)]
-    cor_matrix = correlation_drugs(df_counts=df_sub_tf,df_drugs=df_sub_outputs)
-    gsea_result, pvalues = gsa_drug_enrichment(matrix=cor_matrix,net=drug_net, shared_element='broad_id',net_group='moa')
+# for organ in df_metadata['OncotreeLineage'].unique():
+#     cell_lines = df_metadata.index[df_metadata['OncotreeLineage']==organ].to_list()
+#     df_sub_tf = df_tf[df_tf.index.isin(cell_lines)]
+#     df_sub_outputs = df_outputs[df_outputs.index.isin(cell_lines)]
+#     cor_matrix = correlation_drugs(df_counts=df_tf,df_drugs=df_outputs)
+#     gsea_result, pvalues = gsa_drug_enrichment(matrix=cor_matrix,net=drug_net, shared_element='broad_id',net_group='moa')
 
-    organ = organ.replace("/","_").replace(" ","_")
-    final_path = cor_matrix_folder_path+organ+'_cormatrix.csv'
-    cor_matrix.to_csv(final_path)
+#     organ = organ.replace("/","_").replace(" ","_")
+#     final_path = cor_matrix_folder_path+organ+'_cormatrix.csv'
+#     cor_matrix.to_csv(final_path)
     
-    df_gsea_long = gsea_result.reset_index().melt(id_vars='index', var_name='MoA', value_name='GSEA value')
-    df_gsea_long.rename(columns={'index': 'TF'}, inplace=True)
-    df_pvalues_long = pvalues.reset_index().melt(id_vars='index', var_name='MoA', value_name='p-value')
-    df_pvalues_long.rename(columns={'index': 'TF'}, inplace=True)
-    df_resultado_org = pd.merge(df_gsea_long, df_pvalues_long, on=['TF', 'MoA'])
-    df_resultado_org['Cells_count'] = len(df_sub_tf)
-    df_resultado_org['Split by'] = 'Organ'
-    df_resultado_org['Tumor type'] = organ    
-    df_resultado = pd.concat([df_resultado, df_resultado_org], ignore_index=True)
+#     df_gsea_long = gsea_result.reset_index().melt(id_vars='index', var_name='MoA', value_name='GSEA value')
+#     df_gsea_long.rename(columns={'index': 'TF'}, inplace=True)
+#     df_pvalues_long = pvalues.reset_index().melt(id_vars='index', var_name='MoA', value_name='p-value')
+#     df_pvalues_long.rename(columns={'index': 'TF'}, inplace=True)
+#     df_resultado_org = pd.merge(df_gsea_long, df_pvalues_long, on=['TF', 'MoA'])
+#     df_resultado_org['Cells_count'] = len(df_tf)
+#     df_resultado_org['Split by'] = 'Organ'
+#     df_resultado_org['Tumor type'] = organ    
+#     df_resultado = pd.concat([df_resultado, df_resultado_org], ignore_index=True)
+
+
+
 
 # 2.3 GSEA splicing by tumor type:
 # ----------------------------------------------------------------------------------------------------------------------------------------------------
 
-
 for organ in df_metadata['OncotreePrimaryDisease'].unique():
+
     cell_lines = df_metadata.index[df_metadata['OncotreePrimaryDisease']==organ].to_list()
     df_sub_tf = df_tf[df_tf.index.isin(cell_lines)]
     df_sub_outputs = df_outputs[df_outputs.index.isin(cell_lines)]
-    cor_matrix = correlation_drugs(df_counts=df_sub_tf,df_drugs=df_sub_outputs)
+    cor_matrix = correlation_drugs(df_counts=df_tf,df_drugs=df_outputs)
     gsea_result, pvalues = gsa_drug_enrichment(matrix=cor_matrix,net=drug_net, shared_element='broad_id',net_group='moa')
-
-    organ = organ.replace("/","_").replace(" ","_")
-    final_path = cor_matrix_folder_path+organ+'_cormatrix.csv'
-    cor_matrix.to_csv(final_path)
     
+    # organ = organ.replace("/","_").replace(" ","_")
+    # final_path = cor_matrix_folder_path+organ+'_cormatrix.csv'
+    # cor_matrix.to_csv(final_path)
+
     df_gsea_long = gsea_result.reset_index().melt(id_vars='index', var_name='MoA', value_name='GSEA value')
     df_gsea_long.rename(columns={'index': 'TF'}, inplace=True)
     df_pvalues_long = pvalues.reset_index().melt(id_vars='index', var_name='MoA', value_name='p-value')
     df_pvalues_long.rename(columns={'index': 'TF'}, inplace=True)
     df_resultado_org = pd.merge(df_gsea_long, df_pvalues_long, on=['TF', 'MoA'])
     df_resultado_org['Cells_count'] = len(df_sub_tf)
-    df_resultado_org['Split by'] = 'Organ'
+    df_resultado_org['Split by'] = 'Tumor type'
     df_resultado_org['Tumor type'] = organ    
     df_resultado = pd.concat([df_resultado, df_resultado_org], ignore_index=True)
-
-
+    
 df_resultado.to_csv(gsea_results_path)
