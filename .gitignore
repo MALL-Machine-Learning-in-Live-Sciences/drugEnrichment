@@ -5,3 +5,5 @@ tmp/
 
 # files
 extdata.rar
+.DS_Store
+dea.ipynb
