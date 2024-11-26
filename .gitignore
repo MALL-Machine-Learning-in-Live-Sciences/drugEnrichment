@@ -5,6 +5,7 @@ tmp/
 figures/
 
 # files
+01C_preprocess_CTRP.py
 extdata.rar
 .DS_Store
 dea.ipynb

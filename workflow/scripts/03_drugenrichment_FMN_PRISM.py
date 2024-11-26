@@ -17,7 +17,7 @@ cleaned_drug_response_path = 'data/prism_processed/drug_response_prism.csv'
 
 # Outputs path
 folder_path = 'data/nmf_gsea/'
-gsea_results_path = f"{folder_path}gsea_results_nmf.csv"
+gsea_results_path = f"{folder_path}gsea_results_nmf_100f.csv"
 if not os.path.exists(folder_path):
     os.makedirs(folder_path)
 
@@ -63,7 +63,7 @@ if not os.path.exists(nmf_matrix_folder_path):
 # 'Esophagus/Stomach'
 
 tumor_type_list = ['Colorectal Adenocarcinoma']
-factors = [20] #as list, its posible to try any number
+factors = [100] #as list, its posible to try any number
 iterations = 2000
     
 # 2.1 Defining functions
