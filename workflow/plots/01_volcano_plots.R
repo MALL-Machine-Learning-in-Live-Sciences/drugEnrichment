@@ -5,23 +5,20 @@ library(dplyr)
 library(AnnotationDbi)
 
 # Inputs
-stats_inputpath <- "data/tf_de_SANGER/gsea_results_tf_SANGER.csv" #For TF_results
-#stats_inputpath <-"data/nmf_gsea/gsea_results_nmf_75f.csv" #For NMF results
+stats_inputpath <- "data/tf_de_PRISM/gsea_results_tf.csv" 
 
 # Outputs
-outputpath <- "figures/volcanoplots/tf_CRC_volcano_SANGER_75EES.png" #For TF_results
-#outputpath <- "figures/volcanoplots/nmf_volcano_75f.png" #For NMF results
+outputpath <- "figures/volcanoplots/tf_prism_ES65.png" 
 
 # Arguments
 alpha <- 0.05
-thrFC <- 0.80
+thrFC <- 0.65
 dpi <- 400
 width <- 20
 height <- 10
 tumor_type <- "Colorectal_Adenocarcinoma"
-moa <- "EGFR signaling"
-selec_column_name <- "TF" #For TF_results
-#selec_column_name <- "Factor" #For NMF results
+moa <- "EGFR inhibitor"
+selec_column_name <- "TF" 
 
 # Load and filter
 stats <- read.csv(stats_inputpath, header = TRUE)
