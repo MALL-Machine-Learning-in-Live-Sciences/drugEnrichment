@@ -5,10 +5,10 @@ library(dplyr)
 library(AnnotationDbi)
 
 # Inputs
-stats_inputpath <- "data/tf_de_PRISM/gsea_results_tf.csv" 
+stats_inputpath <- "data/DE_NMF_SANGER/DE_NMF_SANGER.csv" 
 
 # Outputs
-outputpath <- "figures/volcanoplots/tf_prism_ES65.png" 
+outputpath <- "figures/volcanoplots/FMN_SANGER_40.png" 
 
 # Arguments
 alpha <- 0.05
@@ -17,13 +17,13 @@ dpi <- 400
 width <- 20
 height <- 10
 tumor_type <- "Colorectal_Adenocarcinoma"
-moa <- "EGFR inhibitor"
-selec_column_name <- "TF" 
+moa <- "EGFR signaling"
+selec_column_name <- "Factors" 
 
 # Load and filter
 stats <- read.csv(stats_inputpath, header = TRUE)
 stats <- stats %>%
-  dplyr::filter(Tumor.type == tumor_type, MoA == moa)
+  dplyr::filter(Tumor.type == tumor_type, MoA == moa, NMF_components == 40)
 
 
 # Plot VolcanoPlot
