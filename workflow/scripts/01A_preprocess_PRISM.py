@@ -1,11 +1,8 @@
-import pandas as pd
-import os
-
-
-# 1. Preprocessing dataframes
+# 1. Preprocessing PRISM
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
-
+import pandas as pd
+import os
 
 # 1.2. Inputs
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -21,8 +18,6 @@ ccle_cell_information = "extdata/DepMap_23Q2/Model.csv"
 # PRISM Repurposing 19Q4
 
 prism_inptus_path = "extdata/PRISM_19Q4/secondary-screen-dose-response-curve-parameters.csv"
-
-
 
 # 1.3 Outputs
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
