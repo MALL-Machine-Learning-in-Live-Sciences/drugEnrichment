@@ -9,7 +9,10 @@ library(tibble)
 library(PupillometryR)
 library(ggeasy)
 library(biomaRt)
-
+library(DESeq2)
+library(magrittr)
+library(dplyr)
+library(org.Hs.eg.db)
 
 
 # 1.2. Inputs
@@ -27,9 +30,8 @@ post_normalization_plot <- 'figures/boxplots/postnorm.png'
 
 metadata_dir <- dirname(cleaned_metadata_path)
 counts_dir <- dirname(cleaned_counts_path)
-pre_plot_dir <- dirname(pre_normalization_plot)
 post_plot_dir <- dirname(post_normalization_plot)
-dirs <- c(metadata_dir, counts_dir, pre_plot_dir, post_plot_dir)
+dirs <- c(metadata_dir, counts_dir, post_plot_dir)
 lapply(dirs, function(d) if (!dir.exists(d)) dir.create(d, recursive = TRUE))
 
 # 1.3. Preprocessing metadata
@@ -50,11 +52,11 @@ for (line in lines) {
 }
 
 metadata <- as.data.frame(do.call(rbind, data), stringsAsFactors = FALSE)
-colnames(metadata) <- headers
+rownames(metadata) <- make.unique(headers)
 
 metadata[] <- lapply(metadata, function(x) gsub('"', '', x))
 
-write.csv(metadata, cleaned_metadata_path, row.names = FALSE)
+write.csv(t(metadata), cleaned_metadata_path, row.names = TRUE)
 
 # 1.4. Preprocessing counts  
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -69,6 +71,24 @@ dds <- dds[idx, ]
 
 normalized_counts <- counts(dds, normalized = TRUE)
 df <- log(normalized_counts+1,2)
+
+anno_all_1 <- AnnotationDbi::select(org.Hs.eg.db,keys=rownames(df),
+              columns=c("SYMBOL","GENENAME"),
+              keytype="ENSEMBL")
+anno_all_1 <- anno_all_1[!duplicated(anno_all_1$ENSEMBL), ]  
+anno_all1_2 <- anno_all_1[,-1]
+rownames(anno_all1_2) <- anno_all_1[,1]
+d_1 <- cbind(rownames(anno_all1_2), data.frame(anno_all1_2, row.names=NULL))
+d_1 <- d_1 %>% mutate(SYMBOL = coalesce(SYMBOL,rownames(anno_all1_2)))
+rownames(d_1) <- d_1[,1]
+
+d_1 <- d_1[,-1]
+common_ids <- intersect(rownames(df), rownames(d_1))
+
+df <- df[common_ids, ]
+d_1 <- d_1[common_ids, ]
+
+rownames(df) <- d_1$SYMBOL
 
 write.csv(t(df), cleaned_counts_path, row.names = TRUE)
 
