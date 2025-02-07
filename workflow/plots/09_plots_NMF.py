@@ -8,13 +8,13 @@ from scipy.stats import kruskal
 # Inputs
 tf_activity_matrix = pd.read_csv('data/nmf_cohort/nmf_cohort_ulm.csv', index_col=0)
 metadata =  pd.read_csv('data/GSE162104_processed/GSE162104_metadata.csv', index_col=0)
-DE_sanger = pd.read_csv('data/DE_NMF_PRIMS/DE_NMF.csv', index_col=0)
+DE_sanger = pd.read_csv('data/DE_NMF_SANGER/DE_NMF_SANGER.csv', index_col=0)
 
 #Outputs 
 barplot_folder = 'figures/Boxplots_cohort/ulm_prims/'
 os.makedirs(barplot_folder, exist_ok=True)
 
-DE_sanger = DE_sanger[DE_sanger['MoA']=='EGFR inhibitor']
+DE_sanger = DE_sanger[DE_sanger['MoA']=='EGFR signaling']
 DE_sanger = DE_sanger[DE_sanger['NMF_components']==40]
 DE_sanger = DE_sanger[np.abs(DE_sanger['GSEA value'])>0.6]
 

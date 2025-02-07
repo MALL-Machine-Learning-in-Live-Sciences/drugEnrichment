@@ -20,7 +20,7 @@ with open(counts_path) as file:
 # 2. Outputs
 # ----------------------------------------------------------------------------------------------------------------------------------------------------
 folder_path = 'data/nmf_cohort/'
-outputs_path = 'data/nmf_cohort/nmf_cohort_wmean.csv'
+outputs_path = 'data/nmf_cohort/wmean_top350.csv'
 
 if not os.path.exists(folder_path):
     os.makedirs(folder_path)
@@ -38,13 +38,18 @@ net = pd.melt(
     var_name='target',     
     value_name='weight'  
 )
-
-
-    
-# 4. Weighted mean 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------
 net['weight'] = pd.to_numeric(net['weight'], errors='coerce')
+top = 350
+filtered_net = (
+    net.sort_values(by='weight', ascending=False)  
+       .groupby('source')                          
+       .head(top)                                  
+       .reset_index(drop=True)                    
+)
+    
+# 4. WMEAN  
+# ----------------------------------------------------------------------------------------------------------------------------------------------------
 mat = ad.AnnData(X=df_counts.values, obs=pd.DataFrame(index=df_counts.index), var=pd.DataFrame(index=df_counts.columns))
-dc.run_wmean(mat, net, source='source', target='target', weight='weight', min_n=5, seed=1,verbose=False, use_raw=False)
+dc.run_wmean(mat, filtered_net, source='source', target='target', weight='weight', seed=1, min_n=5,verbose=False, use_raw=False)
 fmn_activity  = mat.obsm['wmean_estimate']
 fmn_activity.to_csv(outputs_path, index=True)

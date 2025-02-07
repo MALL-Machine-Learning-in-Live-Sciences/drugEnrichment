@@ -4,8 +4,8 @@ library(dplyr)
 library(gridExtra)
 
 # Inputs
-stats_inputpath_1 <- "data/tf_de_PRISM/gsea_results_tf.csv"
-stats_inputpath_2 <- "data/tf_de_SANGER/gsea_results_tf_SANGER.csv"
+stats_inputpath_1 <- "data/DE_TF_PRISM/DE_TF_PRISM.csv"
+stats_inputpath_2 <- "data/DE_TF_SANGER/DE_TF_SANGER.csv"
 
 # Outputs
 outputpath <- "figures/volcanoplots/cross_volcanos.png"
@@ -59,8 +59,16 @@ prepare_volcano_data <- function(data, highlight_set, title) {
 filtered_data_1 <- data_1 %>%
   dplyr::filter(TF %in% enriched_set_2)
 
+
+
 filtered_data_2 <- data_2 %>%
   dplyr::filter(TF %in% enriched_set_1)
+
+filtered_data_1 <- filtered_data_1 %>%
+  dplyr::filter(GSEA.value < (-0.65))
+
+filtered_data_1 <- filtered_data_1 %>%
+  dplyr::filter(TF %in% enriched_set_2)
 
 toplot_data_1 <- prepare_volcano_data(
   filtered_data_1, enriched_set_2, "Sanger TFs in PRISM"

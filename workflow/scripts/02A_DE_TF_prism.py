@@ -20,7 +20,7 @@ drug_net_path = 'data/prism_processed/drug_net_prism.csv'
 cleaned_drug_response_path = 'data/prism_processed/drug_response_prism.csv'
 
 # Outputs path
-folder_path = 'data/DE_TF_PRISM/'
+folder_path = 'data/DE_TF_PRISM_1212/'
 gsea_results_path = f"{folder_path}DE_TF_PRISM.csv"
 if not os.path.exists(folder_path):
     os.makedirs(folder_path)

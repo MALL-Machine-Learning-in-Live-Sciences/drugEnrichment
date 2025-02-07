@@ -3,11 +3,11 @@ import anndata as ad
 
 # 0.1 Defining functions
 # ----------------------------------------------------------------------------------------------------------------------------------------------------
-def compute_correlation(drug_col, stats, df_counts, df_drugs):
+def compute_correlation(drug_col, stats, df_counts, df_drugs, min_len):
     correlations = []
     df_suboutputs = df_drugs[drug_col].dropna()
     for gene in df_counts.columns:
-        if len(df_suboutputs.unique())>1:
+        if len(df_suboutputs.unique())>min_len:
             df_subgene = df_counts[gene].dropna()
             shared_cells = df_suboutputs.index.intersection(df_subgene.index)       
             correlation, _ = stats.pearsonr(df_suboutputs[shared_cells].sort_index().values,
@@ -18,7 +18,7 @@ def compute_correlation(drug_col, stats, df_counts, df_drugs):
 
     return drug_col, correlations
     
-def correlation_drugs(df_drugs, df_counts, threads):  
+def correlation_drugs(df_drugs, df_counts, threads, min_len):  
     '''
     Inputs: drug matrix (cell-response) and expresión matrix (cell-expression)
     Outputs: correlation matrix: gene-drug
@@ -30,7 +30,7 @@ def correlation_drugs(df_drugs, df_counts, threads):
 
     correlation_matrix = pd.DataFrame(index=df_drugs.columns, columns=df_counts.columns)
 
-    results = Parallel(n_jobs=threads)(delayed(compute_correlation)(drug_col, stats, df_counts, df_drugs) for drug_col in df_drugs.columns)
+    results = Parallel(n_jobs=threads)(delayed(compute_correlation)(drug_col, stats, df_counts, df_drugs, min_len) for drug_col in df_drugs.columns)
 
     for drug_col, correlations in results:
         for gene, correlation in correlations:
@@ -61,7 +61,7 @@ def gsea_enrichment(matrix, net, shared_element, net_group, n_min):
     
     return result_df_gsea, p_value_gsea
 
-def run_drug_enrichment(df_drugs, df_counts, drug_net, shared_elements, group, min_elements=5, number_of_threads=-1, return_cormatrix=False):
+def run_drug_enrichment(df_drugs, df_counts, drug_net, shared_elements, group, min_elements=5, number_of_threads=-1, return_cormatrix=False, min_len=1):
     '''
     Computes drug enrichment based on gene expression and drug response data.
 
@@ -80,7 +80,7 @@ def run_drug_enrichment(df_drugs, df_counts, drug_net, shared_elements, group, m
         P-values for enrichment matrix 
         Correlation matrix (optional if `return_cormatrix=True`
     '''
-    cormatrix = correlation_drugs(df_drugs, df_counts, number_of_threads)
+    cormatrix = correlation_drugs(df_drugs, df_counts, number_of_threads, min_len)
     df_results, df_pvalue = gsea_enrichment(matrix=cormatrix, net=drug_net, shared_element=shared_elements, net_group=group, n_min=min_elements)
     if return_cormatrix==False:
         return df_results, df_pvalue

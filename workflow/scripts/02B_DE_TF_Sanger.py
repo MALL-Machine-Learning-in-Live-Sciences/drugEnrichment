@@ -19,7 +19,7 @@ drug_net_path = 'data/sanger_processed/drug_net_sanger.csv'
 cleaned_drug_response_path = 'data/sanger_processed/drug_response_sanger.csv'
 
 # Outputs path
-folder_path = 'data/DE_TF_SANGER/'
+folder_path = 'data/DE_TF_SANGER_2/'
 gsea_results_path = f"{folder_path}DE_TF_SANGER.csv"
 if not os.path.exists(folder_path):
     os.makedirs(folder_path)
