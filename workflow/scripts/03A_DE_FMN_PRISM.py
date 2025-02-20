@@ -17,7 +17,7 @@ drug_net_path = 'data/prism_processed/drug_net_prism.csv'
 cleaned_drug_response_path = 'data/prism_processed/drug_response_prism.csv'
 
 # Outputs path
-folder_path = 'data/DE_NMF_PRIMS/'
+folder_path = 'data/ZDE_NMF_PRIMS/'
 gsea_results_path = f"{folder_path}DE_NMF.csv"
 if not os.path.exists(folder_path):
     os.makedirs(folder_path)
@@ -35,7 +35,7 @@ if not os.path.exists(nmf_matrix_folder_path):
 # ----------------------------------------------------------------------------------------------------------------------------------------------------
 
 tumor_type_list = ['Colorectal Adenocarcinoma'] # See avalible tumors at the end of the script 
-factors = [20,40,60,80,100] #As list, its posible to try any number
+factors = [5,10,15] #As list, its posible to try any number
 iterations = 2000
     
 # 2.1 Defining functions

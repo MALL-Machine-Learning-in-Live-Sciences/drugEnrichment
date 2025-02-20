@@ -17,14 +17,20 @@ parent.tbl_tree <- utils::getFromNamespace("parent.tbl_tree", "tidytree")
 # Inputs 
 DEnmfPath <- "data/DE_NMF_SANGER/DE_NMF_SANGER.csv"
 HmatrixPath <- "data/DE_NMF_SANGER/nmf_matrix_SANGER/Colorectal_Adenocarcinoma_40_h_matrix.csv"
+in2 <- "data/diffexp/DEA_cohort.csv"
+universe2 <- "data/diffexp/ddseq_norm_counts.csv"
 
 # Outputs
-enrichment_plots_path <- "figures/ZZZenrichmentPlot/"
-select_name <- "nmfNEG"
+enrichment_plots_path <- "figures/adicional/"
+select_name <- "ORADEAneg"
 dir.create(enrichment_plots_path, showWarnings = FALSE)
 
 # Plotting 
-data <- read.csv(DEnmfPath)
+# data <- read.csv(DEnmfPath)
+# Hmatrix <- read.csv(HmatrixPath, row.names = 1, check.names = FALSE)
+# stats2 <- read.csv(in2, header = TRUE)
+# uni2 <- read.csv(universe2,row.names = 1, header = TRUE)
+
 
 tumor_type <- "Colorectal_Adenocarcinoma"
 moa <- "EGFR signaling"
@@ -33,7 +39,6 @@ filterData <- data %>%
   dplyr::filter(Tumor.type == tumor_type, MoA == moa, NMF_components==40, p.value<0.05)
 
 
-Hmatrix <- read.csv(HmatrixPath, row.names = 1, check.names = FALSE)
 colnames(Hmatrix) <- sapply(strsplit(colnames(Hmatrix), " "), `[`, 1)
 
 
@@ -51,21 +56,22 @@ Hmatrix_top10 <- Hmatrix_long %>%
   mutate(percentile_90 = quantile(weight, 0.9, na.rm = TRUE)) %>%  
   filter(weight >= percentile_90)  
 
-in2 <- "data/diffexp/DEA_cohort.csv"
-stats2 <- read.csv(in2, header = TRUE)
-stats2 <- stats2 %>%
-  dplyr::filter(pvalue < 0.05)
 
 
 Hmatrix_top50 <- Hmatrix_long %>%
   group_by(Factor) %>%  
-  slice_max(order_by = weight, n = 50, with_ties = FALSE) %>%
-  dplyr::filter(Gene %in% stats2$Row.names)
+  slice_max(order_by = weight, n = 50, with_ties = FALSE)
+  
+
+stats2f <- stats2 %>%
+  dplyr::filter(padj < 0.05, (log2FoldChange)>(0)) 
+
+  #  %>%
+  # dplyr::filter(Row.names %in% Hmatrix_top50$Gene)
 
 
-
-GoI1 <- Hmatrix_top50$Gene
-Universe1 <- colnames(Hmatrix)
+GoI1 <- stats2f$Row.names
+Universe1 <- rownames(uni2)
 
 
 # # Obtain hallmark gene sets for Homo sapiens
@@ -95,7 +101,7 @@ p <- p +
   coord_flip() +  
   theme(
     text = element_text(family = "Times New Roman"),  
-    axis.text = element_text(size = 10, angle = 90, hjust = 1),  # Ajustar el tamaño de las etiquetas y orientación
+    axis.text = element_text(size = 10, angle = 45, hjust = 1),  # Ajustar el tamaño de las etiquetas y orientación
     plot.title = element_text(size = 14, face = "bold"),  # Ajustar el tamaño del título
     plot.margin = margin(10, 10, 10, 10)  # Añadir márgenes para evitar superposición
   ) +
@@ -103,8 +109,8 @@ p <- p +
     low = "#36274c",  
     high = "#5b4e6f"  
   )
-path <- paste0(enrichment_plots_path, select_name, "_HALMARKS.png") 
-ggsave(path, plot = p, width = 5, height = 6, dpi = 1500)
+path <- paste0(enrichment_plots_path, select_name, "_ORA.png") 
+ggsave(path, plot = p, width = 12, height = 5, dpi = 1000)
 }
 
 # ORA1 <- enricher(gene = GoI1, pvalueCutoff = 0.05,pAdjustMethod = "BH",minGSSize=5,

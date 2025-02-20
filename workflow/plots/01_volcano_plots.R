@@ -5,19 +5,19 @@ library(dplyr)
 library(AnnotationDbi)
 
 # Inputs
-stats_inputpath <- "data/DE_TF_PRISM/DE_TF_PRISM.csv" 
+stats_inputpath <- "data/DE_TF_SANGER_2/DE_TF_SANGER.csv" 
 
 # Outputs
-outputpath <- "figures/Fvolcanoplots/TF_PRISM_volcano.png" 
+outputpath <- "figures/Z/path_volcano.png" 
 
 # Arguments
 alpha <- 0.05
-thrFC <- 0.65
+thrFC <- 0.01
 dpi <- 1500
 width <- 6
 height <- 4
 tumor_type <- "Colorectal_Adenocarcinoma"
-moa <- "EGFR inhibitor"
+moa <- "EGFR signaling"
 selec_column_name <- "TF" 
 
 # Load and filter
@@ -55,7 +55,7 @@ volcano <- ggscatter(
     geom_text_repel(
         data = toplot[!is.na(toplot$toshow), ], 
         aes(label = toshow),
-        color = "transparent", 
+        color = "black", 
         family = "Times New Roman", # Oculta las etiquetas
         nudge_x = ifelse(
             toplot$GSEA.value[!is.na(toplot$toshow)] > 0, 

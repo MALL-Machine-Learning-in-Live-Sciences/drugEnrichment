@@ -100,7 +100,7 @@ counts_filtered <- counts_filtered[, common_samples, drop = TRUE]
 annotation$Group[annotation$Group == "cetuximab resistance: sensitive"] <- "Sensible"
 annotation$Group[annotation$Group == "cetuximab resistance: resistant"] <- "Resistente"
 
-col_fun <- colorRamp2(c(-2, 0, 2), c("#0081abd0", "#dddddd", "#9d1a1add"))
+col_fun <- colorRamp2(c(-5, 0, 5), c("#0081abd0", "#dddddd", "#9d1a1add"))
 col_annotation <- HeatmapAnnotation(df = annotation, col = ann_colors)
 
 library(ggplot2)

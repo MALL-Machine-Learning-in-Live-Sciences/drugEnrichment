@@ -6,13 +6,12 @@ library(clusterProfiler)
 library(reshape2)
 set.seed(1234)
 
-nodeid.tbl_tree <- utils::getFromNamespace("nodeid.tbl_tree", "tidytree")
-rootnode.tbl_tree <- utils::getFromNamespace("rootnode.tbl_tree", "tidytree")
-offspring.tbl_tree <- utils::getFromNamespace("offspring.tbl_tree", "tidytree")
-
-offspring.tbl_tree_item <- utils::getFromNamespace(".offspring.tbl_tree_item", "tidytree")
-child.tbl_tree <- utils::getFromNamespace("child.tbl_tree", "tidytree")
-parent.tbl_tree <- utils::getFromNamespace("parent.tbl_tree", "tidytree")
+# nodeid.tbl_tree <- utils::getFromNamespace("nodeid.tbl_tree", "tidytree")
+# rootnode.tbl_tree <- utils::getFromNamespace("rootnode.tbl_tree", "tidytree")
+# offspring.tbl_tree <- utils::getFromNamespace("offspring.tbl_tree", "tidytree")
+# offspring.tbl_tree_item <- utils::getFromNamespace(".offspring.tbl_tree_item", "tidytree")
+# child.tbl_tree <- utils::getFromNamespace("child.tbl_tree", "tidytree")
+# parent.tbl_tree <- utils::getFromNamespace("parent.tbl_tree", "tidytree")
 
 
 # Inputs 
@@ -60,28 +59,28 @@ h_gene_sets= msigdbr(species = "human", category = "C5",subcategory = "GO:MF")
 msigdbr_t2g = h_gene_sets %>% dplyr::distinct(gs_name, gene_symbol) %>% as.data.frame()
 
 
-ORA1 <- enricher(gene = GoI1, pvalueCutoff = 0.05,pAdjustMethod = "BH",minGSSize=5,
-universe = Universe1,TERM2GENE = msigdbr_t2g)
-par(mfrow=c(2,1)) 
-if(dim(ORA1)[1] < 1){
-  print("No over-represented terms were found")
-  } else {
-ORA1@result$Description <- gsub("GOMF", "", ORA1@result$Description)
-p_bar <- barplot(ORA1,font.size = 7,showCategory =10)
-p_bar <- p_bar + 
-  coord_flip() +  
-  theme(
-    text = element_text(family = "Times New Roman"),  
-    axis.text = element_text(size = 10, angle = 60, hjust = 1),  # Ajustar el tamaño de las etiquetas y orientación
-    plot.title = element_text(size = 14, face = "bold"),  # Ajustar el tamaño del título
-    plot.margin = margin(10, 10, 10, 10)  # Añadir márgenes para evitar superposición
-  ) +
-  scale_fill_gradient(
-    low = "#36274c",  
-    high = "#5b4e6f"  
-  )
-path <- paste0(enrichment_plots_path, select_name, "_tfcc_plot.png")
-ggsave(path, plot = p_bar, width = 5.25, height = 3.5, dpi = 1500)}
+# ORA1 <- enricher(gene = GoI1, pvalueCutoff = 0.05,pAdjustMethod = "BH",minGSSize=5,
+# universe = Universe1,TERM2GENE = msigdbr_t2g)
+# par(mfrow=c(2,1)) 
+# if(dim(ORA1)[1] < 1){
+#   print("No over-represented terms were found")
+#   } else {
+# ORA1@result$Description <- gsub("GOMF", "", ORA1@result$Description)
+# p_bar <- barplot(ORA1,font.size = 7,showCategory =10)
+# p_bar <- p_bar + 
+#   coord_flip() +  
+#   theme(
+#     text = element_text(family = "Times New Roman"),  
+#     axis.text = element_text(size = 10, angle = 60, hjust = 1),  # Ajustar el tamaño de las etiquetas y orientación
+#     plot.title = element_text(size = 14, face = "bold"),  # Ajustar el tamaño del título
+#     plot.margin = margin(10, 10, 10, 10)  # Añadir márgenes para evitar superposición
+#   ) +
+#   scale_fill_gradient(
+#     low = "#36274c",  
+#     high = "#5b4e6f"  
+#   )
+# path <- paste0(enrichment_plots_path, select_name, "_tfcc_plot.png")
+# ggsave(path, plot = p_bar, width = 5.25, height = 3.5, dpi = 1500)}
 
 
 
