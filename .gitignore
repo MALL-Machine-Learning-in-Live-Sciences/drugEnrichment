@@ -2,8 +2,16 @@
 data/
 extdata/
 tmp/
+figures/
 
 # files
+01C_preprocess_CTRP.py
 extdata.rar
 .DS_Store
 dea.ipynb
+dea.R
+pruebas.ipynb
+__pycache__
+0_heatmap.R
+1_1dea.R
+1_2deaB.R
