@@ -1,4 +1,6 @@
 ## Drug enrichment based on Gene Regulatory Networks
+These scripts are designed to study Gene Regulatory Networks (GRNs) associated with drug resistance. They include the inference of transcription factors and metabolic pathways, and their relationship with drug response across various cancer cell lines.
+
 
 ### How to download data
 
@@ -16,6 +18,10 @@
 ### How to use
 
  - Run the scripts sequentially, ensuring that the paths at the beginning of each script are updated accordingly.
+     - 01: Preprocessing the 3 ds
+     - 02: Transcriptión factor activity inference and Drug Enrichment
+     - 03: Non-negative matrix factorization and Drug Enrichment
+     - 04-06: Cohort study
  - It is possible to select which tumor type to analyze; the list is available at the end of the scripts.
  - The code for the plots is located in the plots folder. Ensure that all intermediate data is available.
  - The code is designed to plot specific MoA/biological features. It is important to check which features are being used for the plots.
