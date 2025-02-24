@@ -14,6 +14,7 @@ These scripts are designed to study Gene Regulatory Networks (GRNs) associated w
 - Sanger GDSC1 and GDSC2: 
     - sanger-dose-response.csv
     - screened_compounds_rel_8.5.csv
+- GSE162104 avalible at [GEO](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE162104)
 
 ### How to use
 
